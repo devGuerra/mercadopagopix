@@ -14,7 +14,6 @@ export async function validateMercadoPago(req: NextRequest) {
   let ts: string | undefined;
   let hash: string | undefined;
 
-  // Usando 'for' para iterar sobre as partes
   for (let i = 0; i < parts.length; i++) {
     const part = parts[i];
     const [key, value] = part.split("=");
@@ -26,11 +25,6 @@ export async function validateMercadoPago(req: NextRequest) {
       }
     }
   }
-
-  console.log({
-    ts,
-    hash,
-  });
 
   if (!ts || !hash) {
     return NextResponse.json({ error: "Assinatura inválida" }, { status: 401 });
@@ -51,6 +45,13 @@ export async function validateMercadoPago(req: NextRequest) {
   manifest += `ts:${ts}`;
 
   const secret = process.env.MP_WEBHOOK_SECRET as string;
+
+  console.log({
+    ts,
+    hash,
+    manifest,
+    secret,
+  });
 
   const hmac = crypto.createHmac("sha256", secret);
   hmac.update(manifest);
