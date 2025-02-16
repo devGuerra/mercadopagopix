@@ -46,7 +46,7 @@ export async function validateMercadoPago(req: NextRequest) {
     manifest += `request-id:${xRequestId};`;
   }
 
-  manifest += `ts:${ts}`;
+  manifest += `ts:${ts};`;
 
   const secret = process.env.MP_WEBHOOK_SECRET as string;
 
