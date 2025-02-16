@@ -5,8 +5,6 @@ export async function validateMercadoPago(req: NextRequest) {
   const xSignature = req.headers.get("x-signature");
   const xRequestId = req.headers.get("x-request-id");
 
-  console.log(req.headers);
-
   if (!xSignature || !xRequestId) {
     return NextResponse.json({ error: "Headers ausentes" }, { status: 400 });
   }
@@ -49,13 +47,6 @@ export async function validateMercadoPago(req: NextRequest) {
   manifest += `ts:${ts};`;
 
   const secret = process.env.MP_WEBHOOK_SECRET as string;
-
-  console.log({
-    ts,
-    hash,
-    manifest,
-    secret,
-  });
 
   const hmac = crypto.createHmac("sha256", secret);
   hmac.update(manifest);

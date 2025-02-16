@@ -10,7 +10,6 @@ export async function POST(req: NextRequest) {
 
   try {
     const body = await req.json();
-    console.log("Notificação recebida:", body);
 
     if (body.action === "payment.created") {
     }
