@@ -1,11 +1,7 @@
 import crypto from "node:crypto";
 import { NextResponse, type NextRequest } from "next/server";
 
-const MERCADOPAGO_SECRET = process.env.MP_WEBHOOK_SECRET as string;
-
-export async function validateMercadoPago(
-  req: NextRequest
-): Promise<NextResponse | null> {
+export async function validateMercadoPago(req: NextRequest) {
   const xSignature = req.headers.get("x-signature");
   const xRequestId = req.headers.get("x-request-id");
 
@@ -23,12 +19,10 @@ export async function validateMercadoPago(
     const part = parts[i];
     const [key, value] = part.split("=");
     if (key && value) {
-      const trimmedKey = key.trim();
-      const trimmedValue = value.trim();
-      if (trimmedKey === "ts") {
-        ts = trimmedValue;
-      } else if (trimmedKey === "v1") {
-        hash = trimmedValue;
+      if (key.trim() === "ts") {
+        ts = value.trim();
+      } else if (key.trim() === "v1") {
+        hash = value.trim();
       }
     }
   }
@@ -44,22 +38,26 @@ export async function validateMercadoPago(
 
   const dataID = req.nextUrl.searchParams.get("data.id");
 
-  if (!dataID) {
-    return NextResponse.json(
-      { error: "Query param data.id ausente" },
-      { status: 400 }
-    );
+  let manifest = "";
+
+  if (dataID) {
+    manifest += `id:${dataID}`;
   }
 
-  const manifest = `id:${dataID};request-id:${xRequestId};ts:${ts};`;
-  const hmac = crypto.createHmac("sha256", MERCADOPAGO_SECRET);
+  if (xRequestId) {
+    manifest += `request-id:${xRequestId}`;
+  }
+
+  manifest += `ts:${ts}`;
+
+  const secret = process.env.MP_WEBHOOK_SECRET as string;
+
+  const hmac = crypto.createHmac("sha256", secret);
   hmac.update(manifest);
-  const sha = hmac.digest("hex");
+  const generatedHash = hmac.digest("hex");
 
-  if (sha === hash) {
-    console.log("HMAC verification passed");
-    return null;
+  if (generatedHash !== hash) {
+    console.log("HMAC verification failed");
+    return NextResponse.json({ error: "Assinatura inválida" }, { status: 401 });
   }
-  console.log("HMAC verification failed");
-  return NextResponse.json({ error: "Assinatura inválida" }, { status: 401 });
 }
