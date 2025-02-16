@@ -33,6 +33,11 @@ export async function validateMercadoPago(
     }
   }
 
+  console.log({
+    ts,
+    hash,
+  });
+
   if (!ts || !hash) {
     return NextResponse.json({ error: "Assinatura inválida" }, { status: 401 });
   }
