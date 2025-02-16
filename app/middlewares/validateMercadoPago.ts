@@ -35,11 +35,11 @@ export async function validateMercadoPago(req: NextRequest) {
   let manifest = "";
 
   if (dataID) {
-    manifest += `id:${dataID}`;
+    manifest += `id:${dataID};`;
   }
 
   if (xRequestId) {
-    manifest += `request-id:${xRequestId}`;
+    manifest += `request-id:${xRequestId};`;
   }
 
   manifest += `ts:${ts}`;
