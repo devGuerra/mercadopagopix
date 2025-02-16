@@ -1,13 +1,8 @@
 "use server";
 
 import { MercadoPagoConfig, Payment } from "mercadopago";
-import { generateRandomHash } from "../utils/randonHash";
-
-const MERCADOPAGO_SECRET = process.env.MP_SECRET as string;
-
-const client = new MercadoPagoConfig({
-  accessToken: MERCADOPAGO_SECRET,
-});
+import { generateRandomHash } from "../_utils/randonHash";
+import { mpClient } from "../_services/mercadopago";
 
 export type TCreatePaymentResponse = {
   qr_code: string | undefined;
@@ -20,7 +15,7 @@ type TCreatePayment = {
 };
 
 export const CreatePayment = async ({ document, email }: TCreatePayment) => {
-  const payment = new Payment(client);
+  const payment = new Payment(mpClient);
 
   const newPayment = await payment.create({
     requestOptions: {

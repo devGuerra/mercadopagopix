@@ -1,8 +1,7 @@
-import { validateMercadoPago } from "@/app/middlewares/validateMercadoPago";
+import { validateMercadoPago } from "@/app/_middlewares/validateMercadoPago";
 import MercadoPagoConfig, { Payment } from "mercadopago";
 import { NextResponse, type NextRequest } from "next/server";
-
-const MERCADOPAGO_SECRET = process.env.MP_SECRET as string;
+import { mpClient } from "../../../_services/mercadopago";
 
 export async function POST(req: NextRequest) {
   const validationError = await validateMercadoPago(req);
@@ -11,18 +10,16 @@ export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
 
+    const payment = new Payment(mpClient);
+
     if (body.action === "payment.created") {
     }
 
     if (body.action === "payment.updated") {
-      const client = new MercadoPagoConfig({
-        accessToken: MERCADOPAGO_SECRET,
-      });
-      const payment = new Payment(client);
+      const paymentData = await payment.get({ id: body.data.id });
+      const isPaid = paymentData.status === "approved";
 
-      const paymentData = payment.get({ id: body.data.id });
-
-      console.log(paymentData);
+      console.log("Pago");
     }
 
     return NextResponse.json({ success: true }, { status: 200 });
