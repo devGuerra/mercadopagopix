@@ -5,6 +5,8 @@ export async function validateMercadoPago(req: NextRequest) {
   const xSignature = req.headers.get("x-signature");
   const xRequestId = req.headers.get("x-request-id");
 
+  console.log(req.headers);
+
   if (!xSignature || !xRequestId) {
     return NextResponse.json({ error: "Headers ausentes" }, { status: 400 });
   }
@@ -18,10 +20,12 @@ export async function validateMercadoPago(req: NextRequest) {
     const part = parts[i];
     const [key, value] = part.split("=");
     if (key && value) {
-      if (key.trim() === "ts") {
-        ts = value.trim();
-      } else if (key.trim() === "v1") {
-        hash = value.trim();
+      const trimmedKey = key.trim();
+      const trimmedValue = value.trim();
+      if (trimmedKey === "ts") {
+        ts = trimmedValue;
+      } else if (trimmedKey === "v1") {
+        hash = trimmedValue;
       }
     }
   }
