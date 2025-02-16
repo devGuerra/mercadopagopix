@@ -1,20 +1,11 @@
 import crypto from "node:crypto";
 import { NextResponse, type NextRequest } from "next/server";
 
-const MERCADOPAGO_SECRET = process.env.MP_SECRET as string;
+const MERCADOPAGO_SECRET = process.env.MP_WEBHOOK_SECRET as string;
 
 export async function validateMercadoPago(
   req: NextRequest
 ): Promise<NextResponse | null> {
-  // Verificar método POST
-  if (req.method !== "POST") {
-    return NextResponse.json(
-      { error: "Método não permitido" },
-      { status: 405 }
-    );
-  }
-
-  // Obter os headers
   const xSignature = req.headers.get("x-signature");
   const xRequestId = req.headers.get("x-request-id");
 
@@ -22,8 +13,8 @@ export async function validateMercadoPago(
     return NextResponse.json({ error: "Headers ausentes" }, { status: 400 });
   }
 
-  // Separar x-signature em partes
   const parts = xSignature.split(",");
+
   let ts: string | undefined;
   let hash: string | undefined;
 
